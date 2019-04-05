@@ -1,0 +1,7 @@
+environment: production
+
+port: 8080
+
+image:
+  repo: web3f/uptime-bot
+  tag: latest

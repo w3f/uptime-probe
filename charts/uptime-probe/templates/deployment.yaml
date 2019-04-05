@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uptime-probe
+  labels:
+    app: uptime-probe
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: uptime-probe
+  template:
+    metadata:
+      labels:
+        app: uptime-probe
+    spec:
+      containers:
+      - name: uptime-probe
+        image: {{ .Values.image.repo }}:{{ .Values.image.tag }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: {{ .Values.port }}
+        readinessProbe:
+          httpGet:
+            path: /healthcheck
+            port: {{ .Values.port }}
+          initialDelaySeconds: 30
+          timeoutSeconds: 30
+        resources:
+          limits:
+            cpu: 10m
+            memory: 100Mi
+          requests:
+            cpu: 10m
+            memory: 100Mi
+        volumeMounts:
+        - name: config
+          mountPath: /etc/uptime-probe
+      volumes:
+      - name: config
+        configMap:
+          name: uptime-probe
