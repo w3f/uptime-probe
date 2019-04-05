@@ -1,0 +1,110 @@
+version: 2
+
+jobs:
+  buildImage:
+    docker:
+      - image: web3f/ci-commons:v0.1.7
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASSWORD
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          command: |
+            /scripts/build-image.sh web3f/uptime-probe .
+
+  integrationTests:
+    docker:
+      - image: web3f/ci-commons:v0.1.7
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASSWORD
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          description: run integration tests
+          command: |
+            /scripts/integration-tests.sh
+
+  publishImage:
+    docker:
+      - image: web3f/ci-commons:v0.1.7
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASSWORD
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          command: |
+            /scripts/publish-image.sh web3f/uptime-probe
+
+  publishChart:
+    docker:
+      - image: web3f/ci-commons:v0.1.7
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASSWORD
+    steps:
+      - checkout
+      - run:
+          command: |
+            /scripts/publish-chart.sh
+
+  deploy:
+    environment:
+      HELM_ENV: production
+    docker:
+      - image: web3f/ci-commons:v0.1.7
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASSWORD
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          command: |
+            ./scripts/deploy.sh
+
+workflows:
+  version: 2
+  test_and_deploy:
+    jobs:
+      - buildImage:
+          filters:
+            tags:
+              only: /.*/
+      - integrationTests:
+          filters:
+            tags:
+              only: /.*/
+      - publishImage:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
+          requires:
+            - buildImage
+            - integrationTests
+      - publishChart:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
+          requires:
+            - buildImage
+            - integrationTests
+      - deploy:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
+          requires:
+            - publishChart
+            - publishImage
