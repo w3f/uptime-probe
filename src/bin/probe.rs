@@ -5,8 +5,8 @@ use uptime_probe::{Config, run};
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let config = Config::new(&args).unwrap_or_else(|err| {
-        println!("Problem parsing arguments: {}", err);
+    let config = Config::new(&args).unwrap_or_else(|e| {
+        println!("Problem parsing arguments: {}", e);
         process::exit(1);
     });
 
