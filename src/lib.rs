@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate serde_derive;
+
 use std::error::Error;
 pub use config::Config;
 
