@@ -1,3 +1,4 @@
+{{ if ne .Values.environment "ci" }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -10,3 +11,4 @@ spec:
       app: uptime-probe
   endpoints:
   - port: http
+{{ end }}
