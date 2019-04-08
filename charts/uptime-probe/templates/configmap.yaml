@@ -4,3 +4,9 @@ metadata:
   name: uptime-probe
 data:
   configuration.yaml: |
+    period: 5m
+    sites:
+    - url: "https://polkadot.network/"
+      needles: ["multi-chain", "interoperability", "scalability"]
+    - url: "https://web3.foundation/"
+      needles: ["decentralized", "protocols", "projects"]
