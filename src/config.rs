@@ -4,8 +4,15 @@ extern crate tempfile;
 use std::path::Path;
 
 #[derive(Debug, Deserialize)]
+pub struct Site {
+    url: String,
+    needles: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Config {
     period: String,
+    sites: Vec<Site>,
 }
 
 impl Config {
@@ -76,7 +83,15 @@ mod tests{
     #[test]
     fn valid_yaml_succeeds() {
         let mut tmpfile = tempfile::NamedTempFile::new().unwrap();
-        write!(tmpfile, "period: 5m").unwrap();
+
+        write!(tmpfile, r#"
+period: 5m
+sites:
+- url: "https://polkadot.network/"
+  needles: ["multi-chain", "interoperability", "scalability"]
+- url: "https://web3.foundation/"
+  needles: ["decentralized", "protocols", "projects"]
+"#).unwrap();
 
         let path = tmpfile.path();
         let args = vec![path.to_str().unwrap().to_string()];
@@ -85,7 +100,18 @@ mod tests{
         assert!(result.is_ok());
 
         if let Ok(cfg) = result {
-            assert_eq!(cfg.period, "5m")
+            assert_eq!(cfg.period, "5m");
+            assert_eq!(cfg.sites.len(), 2);
+            assert_eq!(cfg.sites[0].url, "https://polkadot.network/");
+            assert_eq!(cfg.sites[0].needles.len(), 3);
+            assert_eq!(cfg.sites[0].needles[0], "multi-chain");
+            assert_eq!(cfg.sites[0].needles[1], "interoperability");
+            assert_eq!(cfg.sites[0].needles[2], "scalability");
+            assert_eq!(cfg.sites[1].url, "https://web3.foundation/");
+            assert_eq!(cfg.sites[1].needles.len(), 3);
+            assert_eq!(cfg.sites[1].needles[0], "decentralized");
+            assert_eq!(cfg.sites[1].needles[1], "protocols");
+            assert_eq!(cfg.sites[1].needles[2], "projects");
         }
     }
 }
