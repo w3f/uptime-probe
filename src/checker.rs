@@ -1,7 +1,9 @@
 extern crate hyper;
+extern crate hyper_tls;
 
 use hyper::Client;
 use hyper::rt::{self, Future};
+use hyper_tls::HttpsConnector;
 
 use crate::config;
 use prometheus::{IntCounterVec};
@@ -30,7 +32,9 @@ impl Checker {
             println!("Processing {}", site.url);
             let uri = site.url.parse().unwrap();
             rt::run(rt::lazy(|| {
-                let client = Client::new();
+                let https = HttpsConnector::new(4).unwrap();
+                let client = Client::builder()
+                    .build::<_, hyper::Body>(https);
 
                 client
                     .get(uri)
