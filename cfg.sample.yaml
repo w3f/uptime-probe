@@ -1,4 +1,4 @@
-period: 300
+period: 3
 port: 8080
 sites:
 - url: "https://polkadot.network/"

@@ -5,9 +5,10 @@
 #[macro_use] extern crate mime;
 
 use std::error::Error;
-pub use config::Config;
+use std::thread;
+use std::time;
 
-use checker;
+pub use config::Config;
 
 mod config;
 mod checker;
@@ -17,9 +18,22 @@ mod metrics;
 pub fn run(cfg: config::Config) -> Result<(), Box<dyn Error>> {
     let metrics = metrics::Metrics::new();
 
-    server::Server::new(cfg.port, &metrics)?;
+    let port = cfg.port;
+    let handle = thread::spawn(move || {
+        let checker = checker::Checker::new(cfg.sites);
 
-    let checker = checker::Checker::new(cfg, metrics);
+        let period_duration = time::Duration::from_secs(cfg.period as u64);
+        loop {
+            let now = time::Instant::now();
+            println!("Running checker...");
+            checker.run().unwrap();
+            thread::sleep(period_duration - now.elapsed());
+        }
+    });
+
+    server::Server::new(port, &metrics).unwrap();
+
+    handle.join().unwrap();
 
     Ok(())
 }
