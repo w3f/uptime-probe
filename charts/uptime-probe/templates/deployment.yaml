@@ -5,7 +5,7 @@ metadata:
   labels:
     app: uptime-probe
 spec:
-  replicas: 2
+  replicas: 1
   revisionHistoryLimit: 3
   strategy:
     type: RollingUpdate
