@@ -22,7 +22,6 @@ spec:
         image: {{ .Values.image.repo }}:{{ .Values.image.tag }}
         imagePullPolicy: IfNotPresent
         args:
-        - /app/uptime-probe
         - /etc/uptime-probe/configuration.yaml
         ports:
         - name: http
