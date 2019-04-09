@@ -31,6 +31,7 @@ impl Checker {
         for site in &self.sites {
             println!("Processing {}", site.url);
             let uri = site.url.parse().unwrap();
+            // let needles = site.needles.clone();
             rt::run(rt::lazy(|| {
                 let https = HttpsConnector::new(4).unwrap();
                 let client = Client::builder()
@@ -43,6 +44,7 @@ impl Checker {
                     })
                     .map_err(|err| {
                         println!("Error: {}", err);
+                        // INT_COUNTER_VECT.with_label_values(&["error", uri, ""]).inc();
                     })
             }));
         }
