@@ -4,6 +4,8 @@
 
 #[macro_use] extern crate mime;
 
+#[macro_use] extern crate lazy_static;
+
 use std::error::Error;
 use std::thread;
 use std::time;
@@ -16,8 +18,6 @@ mod server;
 mod metrics;
 
 pub fn run(cfg: config::Config) -> Result<(), Box<dyn Error>> {
-    let metrics = metrics::Metrics::new();
-
     let port = cfg.port;
     let handle = thread::spawn(move || {
         let checker = checker::Checker::new(cfg.sites);
@@ -31,9 +31,12 @@ pub fn run(cfg: config::Config) -> Result<(), Box<dyn Error>> {
         }
     });
 
-    server::Server::new(port, &metrics).unwrap();
+    let server_handle = thread::spawn(move || {
+        server::Server::new(port).unwrap();
+    });
 
     handle.join().unwrap();
+    server_handle.join().unwrap();
 
     Ok(())
 }

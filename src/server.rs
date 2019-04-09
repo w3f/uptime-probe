@@ -1,5 +1,7 @@
 extern crate iron;
 
+use prometheus::{TextEncoder, Encoder};
+
 use std::error::Error;
 use iron::prelude::*;
 use iron::status;
@@ -7,14 +9,11 @@ use iron::status;
 extern crate router;
 use router::Router;
 
-use crate::metrics;
-
-pub struct Server<'a>  {
-    metrics: &'a metrics::Metrics,
+pub struct Server  {
 }
 
-impl<'a> Server<'a> {
-    pub fn new(port: u32, metrics: &'a metrics::Metrics) -> Result<Server<'a>, Box<Error>> {
+impl Server {
+    pub fn new(port: u32) -> Result<Server, Box<Error>> {
         let mut router = Router::new();
         router.get("/healthcheck", Self::get_healthcheck, "healthcheck");
         router.get("/metrics", Self::get_metrics, "metrics");
@@ -23,7 +22,7 @@ impl<'a> Server<'a> {
 
         Iron::new(router).http(format!("0.0.0.0:{}", port))?;
 
-        Ok(Server{ metrics })
+        Ok(Server{})
     }
 
     fn get_healthcheck(_request: &mut Request) -> IronResult<Response> {
@@ -38,7 +37,13 @@ impl<'a> Server<'a> {
         let mut response = Response::new();
         response.set_mut(status::Ok);
         response.set_mut(mime!(Text/Html; Charset=Utf8));
-        response.set_mut("Metrics!");
+
+        let mut buffer = vec![];
+        let encoder = TextEncoder::new();
+        let metric_families = prometheus::gather();
+        encoder.encode(&metric_families, &mut buffer).unwrap();
+
+        response.set_mut(String::from_utf8(buffer).unwrap());
         Ok(response)
     }
 }
