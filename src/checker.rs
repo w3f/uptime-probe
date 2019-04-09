@@ -13,6 +13,10 @@ impl Checker {
     }
 
     pub fn run(&self) -> Result<(), Box<dyn Error>> {
+        for site in &self.sites {
+            println!("Processing {}", site.url)
+        }
+
         Ok(())
     }
 }
