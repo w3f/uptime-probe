@@ -17,13 +17,13 @@ pub struct Config {
 
 impl Config {
     pub fn new(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() == 0 {
+        if args.len() < 2 {
             return Err("Please provide a config path.");
         }
-        if ! Path::new(&args[0]).exists() {
+        if ! Path::new(&args[1]).exists() {
             return Err("Please, provide a valid file path.");
         }
-        if let Ok(f) = std::fs::File::open(&args[0]) {
+        if let Ok(f) = std::fs::File::open(&args[1]) {
             if let Ok(cfg) = serde_yaml::from_reader(f) {
                 Ok(cfg)
             }
@@ -57,7 +57,7 @@ mod tests{
 
     #[test]
     fn not_given_file_fails() {
-        let args = vec!["cfg.yaml".to_string()];
+        let args = vec!["bin".to_string(), "cfg.yaml".to_string()];
         let result = Config::new(&args[..]);
         assert!(result.is_err());
 
@@ -72,7 +72,7 @@ mod tests{
         write!(tmpfile, "not real YAML content...").unwrap();
 
         let path = tmpfile.path();
-        let args = vec![path.to_str().unwrap().to_string()];
+        let args = vec!["bin".to_string(), path.to_str().unwrap().to_string()];
 
         let result = Config::new(&args[..]);
         assert!(result.is_err());
@@ -97,7 +97,7 @@ sites:
 "#).unwrap();
 
         let path = tmpfile.path();
-        let args = vec![path.to_str().unwrap().to_string()];
+        let args = vec!["bin".to_string(), path.to_str().unwrap().to_string()];
 
         let result = Config::new(&args[..]);
         assert!(result.is_ok());
