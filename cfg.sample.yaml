@@ -1,0 +1,7 @@
+period: 300
+port: 8080
+sites:
+- url: "https://polkadot.network/"
+  needles: ["multi-chain", "interoperability", "scalability"]
+- url: "https://web3.foundation/"
+  needles: ["decentralized", "protocols", "projects"]
