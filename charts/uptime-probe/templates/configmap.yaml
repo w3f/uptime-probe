@@ -5,7 +5,7 @@ metadata:
 data:
   configuration.yaml: |
     period: 300
-    port: {{{ .Values.port }}
+    port: {{ .Values.port }}
     sites:
     - url: "https://polkadot.network/"
       needles: ["multi-chain", "interoperability", "scalability"]
