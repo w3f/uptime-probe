@@ -10,7 +10,8 @@ pub struct Site {
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
-    period: String,
+    period: u32,
+    port: u32,
     sites: Vec<Site>,
 }
 
@@ -86,7 +87,8 @@ mod tests{
         let mut tmpfile = tempfile::NamedTempFile::new().unwrap();
 
         write!(tmpfile, r#"
-period: 5m
+period: 300
+port: 8080
 sites:
 - url: "https://polkadot.network/"
   needles: ["multi-chain", "interoperability", "scalability"]
@@ -101,7 +103,8 @@ sites:
         assert!(result.is_ok());
 
         if let Ok(cfg) = result {
-            assert_eq!(cfg.period, "5m");
+            assert_eq!(cfg.period, 300);
+            assert_eq!(cfg.port, 8080);
             assert_eq!(cfg.sites.len(), 2);
             assert_eq!(cfg.sites[0].url, "https://polkadot.network/");
             assert_eq!(cfg.sites[0].needles.len(), 3);
