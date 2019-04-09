@@ -7,17 +7,19 @@
 use std::error::Error;
 pub use config::Config;
 
-//use checker;
+use checker;
 
 mod config;
-//mod checker;
+mod checker;
 mod server;
 mod metrics;
 
 pub fn run(cfg: config::Config) -> Result<(), Box<dyn Error>> {
     let metrics = metrics::Metrics::new();
-    //let checker = checker::Checker::new(cfg, metrics);
-    let _server = server::Server::new(cfg.port, &metrics)?;
+
+    server::Server::new(cfg.port, &metrics)?;
+
+    let checker = checker::Checker::new(cfg, metrics);
 
     Ok(())
 }

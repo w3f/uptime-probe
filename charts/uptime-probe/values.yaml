@@ -3,5 +3,5 @@ environment: production
 port: 8080
 
 image:
-  repo: web3f/uptime-bot
+  repo: web3f/uptime-probe
   tag: latest
