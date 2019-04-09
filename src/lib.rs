@@ -15,7 +15,6 @@ pub use config::Config;
 mod config;
 mod checker;
 mod server;
-mod metrics;
 
 pub fn run(cfg: config::Config) -> Result<(), Box<dyn Error>> {
     let port = cfg.port;
