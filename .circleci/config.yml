@@ -1,6 +1,15 @@
 version: 2
 
 jobs:
+  unitTests:
+    docker:
+      - image: rust:1.33-slim
+    steps:
+      - checkout
+      - run:
+          command: |
+            cargo test
+
   buildImage:
     docker:
       - image: web3f/ci-commons:v0.1.7
@@ -73,6 +82,10 @@ workflows:
   version: 2
   test_and_deploy:
     jobs:
+      - unitTests:
+          filters:
+            tags:
+              only: /.*/
       - buildImage:
           filters:
             tags:
@@ -88,6 +101,7 @@ workflows:
             tags:
               only: /v[0-9]+(\.[0-9]+)*/
           requires:
+            - unitTests
             - buildImage
             - integrationTests
       - publishChart:
@@ -97,6 +111,7 @@ workflows:
             tags:
               only: /v[0-9]+(\.[0-9]+)*/
           requires:
+            - unitTests
             - buildImage
             - integrationTests
       - deploy:
