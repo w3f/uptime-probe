@@ -4,15 +4,15 @@ use std::path::Path;
 
 #[derive(Debug, Deserialize)]
 pub struct Site {
-    url: String,
-    needles: Vec<String>,
+    pub url: String,
+    pub needles: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
-    period: u32,
-    port: u32,
-    sites: Vec<Site>,
+    pub period: u32,
+    pub port: u32,
+    pub sites: Vec<Site>,
 }
 
 impl Config {
