@@ -8,11 +8,8 @@ pub struct Metrics {
 
 impl Metrics {
     pub fn new() -> Metrics {
-        let counter_opts = Opts::new("uptime_probe_results", "uptime probe requests results")
-            .const_label("result", "")
-            .const_label("url", "")
-            .const_label("missed_needle", "");
-        let counter = CounterVec::new(counter_opts, &["", "", ""]).unwrap();
+        let counter_opts = Opts::new("uptime_probe_results", "uptime probe requests results");
+        let counter = CounterVec::new(counter_opts, &["result", "url", "missed_needle"]).unwrap();
 
         let registry = Registry::new();
         registry.register(Box::new(counter.clone())).unwrap();

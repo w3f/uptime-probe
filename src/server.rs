@@ -2,10 +2,10 @@ extern crate iron;
 
 use std::error::Error;
 use iron::prelude::*;
+use iron::status;
+
 extern crate router;
 use router::Router;
-
-use iron::status;
 
 use crate::metrics;
 
@@ -38,7 +38,7 @@ impl<'a> Server<'a> {
         let mut response = Response::new();
         response.set_mut(status::Ok);
         response.set_mut(mime!(Text/Html; Charset=Utf8));
-        response.set_mut("Ok!");
+        response.set_mut("Metrics!");
         Ok(response)
     }
 }
