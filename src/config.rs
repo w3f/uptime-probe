@@ -1,5 +1,4 @@
 extern crate serde_yaml;
-extern crate tempfile;
 
 use std::path::Path;
 
@@ -38,6 +37,8 @@ impl Config {
 
 #[cfg(test)]
 mod tests{
+    extern crate tempfile;
+
     use super::*;
     use std::io::prelude::*;
 
