@@ -3,7 +3,7 @@
 # Uptime Probe
 
 This probe checks a set of websites and exposes the results as prometheus
-metrics. These metricsc are used on an alert that triggers if any of the
+metrics. These metrics are used on an alert that triggers if any of the
 configured sites can't be accessed by the probe.
 
 ## Files
