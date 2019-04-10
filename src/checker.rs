@@ -6,14 +6,14 @@ use hyper::rt::{self, Future};
 use hyper_tls::HttpsConnector;
 
 use crate::config;
-use prometheus::{IntCounterVec};
+use prometheus::{IntGaugeVec};
 
 use std::error::Error;
 
 lazy_static! {
-    static ref INT_COUNTER_VECT: IntCounterVec = register_int_counter_vec!(
-        "uptime_probe_results",
-        "uptime probe requests results",
+    static ref INT_GAUGE_VECT: IntGaugeVec = register_int_gauge_vec!(
+        "uptime_probe_errors",
+        "uptime probe requests errors",
         &["result", "url", "missed_needle"]).unwrap();
 }
 
@@ -42,10 +42,13 @@ impl Checker {
                 client
                     .get(uri)
                     .map(move |res| {
-                        INT_COUNTER_VECT.with_label_values(&[res.status().as_str(), &url_success[..], ""]).inc();
+                        match res.status().as_str() {
+                            "200" => INT_GAUGE_VECT.with_label_values(&["200", &url_success[..], ""]).set(0),
+                            s => INT_GAUGE_VECT.with_label_values(&[s, &url_success[..], ""]).set(1),
+                        }
                     })
                     .map_err(move |_| {
-                        INT_COUNTER_VECT.with_label_values(&["error", &url_err[..], ""]).inc();
+                        INT_GAUGE_VECT.with_label_values(&["connection error", &url_err[..], ""]).set(1);
                     })
             }));
         }
