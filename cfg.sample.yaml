@@ -1,7 +1,13 @@
 period: 3
 port: 8080
 sites:
-- url: "https://polkadot.network/"
-  needles: ["multi-chain", "interoperability", "scalability"]
-- url: "https://web3.foundation/"
-  needles: ["decentralized", "protocols", "projects"]
+  - url: "https://polkadot.network/"
+    needles: []
+  - url: "https://web3.foundation/"
+    needles: []
+  - url: "https://research.web3.foundation/en/latest/"
+    needles: []
+  - url: "https://wiki.web3.foundation/en/latest/"
+    needles: []
+  - url: "https://wiki.polkadot.network/en/latest/"
+    needles: []

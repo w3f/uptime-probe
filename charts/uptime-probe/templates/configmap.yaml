@@ -8,6 +8,12 @@ data:
     port: {{ .Values.port }}
     sites:
     - url: "https://polkadot.network/"
-      needles: ["multi-chain", "interoperability", "scalability"]
+      needles: []
     - url: "https://web3.foundation/"
-      needles: ["decentralized", "protocols", "projects"]
+      needles: []
+    - url: "https://research.web3.foundation/en/latest/"
+      needles: []
+    - url: "https://wiki.web3.foundation/en/latest/"
+      needles: []
+    - url: "https://wiki.polkadot.network/en/latest/"
+      needles: []

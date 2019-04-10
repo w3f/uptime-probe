@@ -6,6 +6,17 @@ This probe checks a set of websites and exposes the results as prometheus
 metrics. These metrics are used on an alert that triggers if any of the
 configured sites can't be accessed by the probe.
 
+## Configuration
+
+The binary created with `cargo build` accepts one single argument, the path to a
+configuration file which defines the sites to check. An example is provided in
+the repo [here](cfg.sample.yaml).
+
+When the binary is deployed to the kubernetes production cluster it uses
+[this configmap](charts/uptime-probe/templates/configmap.yaml) for getting the
+configuration settings.
+
+
 ## Files
 
 These are the main directories in the repo:
