@@ -1,0 +1,21 @@
+{{ if ne .Values.environment "ci" }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app: w3f
+  name: uptime-probe
+spec:
+  groups:
+  - name: uptime-probe
+    rules:
+    - alert: UptimeProbeFailure
+      annotations:
+        summary: Uptime probe failure.
+        description: Uptime probe for {{ $labels.url }} started failing with {{ $labels.result }}.
+      expr: |
+        uptime_probe_errors > 0
+      for: 5m
+      labels:
+        severity: critical
+{{ end }}
