@@ -30,6 +30,8 @@ impl Checker {
 
         for site in &self.sites {
             println!("Processing {}", site.url);
+            let url_success = site.url.clone();
+            let url_err = site.url.clone();
             let uri = site.url.parse().unwrap();
             // let needles = site.needles.clone();
             rt::run(rt::lazy(|| {
@@ -39,16 +41,14 @@ impl Checker {
 
                 client
                     .get(uri)
-                    .map(|res| {
-                        println!("Response: {}", res.status());
+                    .map(move |res| {
+                        INT_COUNTER_VECT.with_label_values(&[res.status().as_str(), &url_success[..], ""]).inc();
                     })
-                    .map_err(|err| {
-                        println!("Error: {}", err);
-                        // INT_COUNTER_VECT.with_label_values(&["error", uri, ""]).inc();
+                    .map_err(move |_| {
+                        INT_COUNTER_VECT.with_label_values(&["error", &url_err[..], ""]).inc();
                     })
             }));
         }
-
         Ok(())
     }
 }
