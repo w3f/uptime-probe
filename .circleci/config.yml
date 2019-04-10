@@ -1,7 +1,7 @@
 version: 2
 
 jobs:
-  unitTests:
+  cargoTests:
     docker:
       - image: rust:1.33-slim
     steps:
@@ -83,7 +83,7 @@ workflows:
   version: 2
   test_and_deploy:
     jobs:
-      - unitTests:
+      - cargoTests:
           filters:
             tags:
               only: /.*/
@@ -102,7 +102,7 @@ workflows:
             tags:
               only: /v[0-9]+(\.[0-9]+)*/
           requires:
-            - unitTests
+            - cargoTests
             - buildImage
             - integrationTests
       - publishChart:
@@ -112,7 +112,7 @@ workflows:
             tags:
               only: /v[0-9]+(\.[0-9]+)*/
           requires:
-            - unitTests
+            - cargoTests
             - buildImage
             - integrationTests
       - deploy:
