@@ -67,5 +67,10 @@ version in [./charts/uptime-probe/Chart.yaml]()
 Tests can be run and debugged locally, you need to have [docker](https://docs.docker.com/install/)
 and [CircleCI CLI](https://circleci.com/docs/2.0/local-cli/) installed, then run:
 ```
+$ circleci local execute --job cargoTests
+```
+for Cargo tests and:
+```
 $ circleci local execute --job integrationTests
 ```
+for e2e integration tests (involving k8s component deployment).
