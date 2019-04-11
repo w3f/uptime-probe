@@ -32,7 +32,7 @@ service resources it contains manifests for these custom resources:
   In order to be able to deploy to production, these environment variables must be
   available:
 
-    * `$ENCRYPTION_KEY`
+    * `$DIGITALOCEAN_ACCESS_TOKEN`
 
     * `GITHUB_BOT_TOKEN`
 
@@ -42,7 +42,7 @@ service resources it contains manifests for these custom resources:
 
   These values are already set on CI, the GitHub bot token in an item called
   `GitHub bot`, the Docker credentials in an item called `Docker Hub Bot`  and
-  the encryption key in the `CI Encryption Key` item.
+  the Digital Ocean access token in the `DigitalOcean API credentials` item.
 
 * `.circleci`: defines the CI/CD configuration.
 
