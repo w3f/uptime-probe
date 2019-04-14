@@ -9,6 +9,7 @@ use crate::config;
 use prometheus::{IntGaugeVec};
 
 use std::error::Error;
+use std::collections::HashMap;
 
 lazy_static! {
     static ref INT_GAUGE_VECT: IntGaugeVec = register_int_gauge_vec!(
@@ -43,7 +44,11 @@ impl Checker {
                     .get(uri)
                     .map(move |res| {
                         match res.status().as_str() {
-                            "200" => INT_GAUGE_VECT.with_label_values(&["200", &url_success[..], ""]).set(0),
+                            "200" => {
+                                let mut labels = HashMap::new();
+                                labels.insert("url", &url_success[..]);
+                                INT_GAUGE_VECT.with(&labels).set(0);
+                            },
                             s => INT_GAUGE_VECT.with_label_values(&[s, &url_success[..], ""]).set(1),
                         }
                     })
