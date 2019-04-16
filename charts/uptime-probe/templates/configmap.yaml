@@ -17,3 +17,5 @@ data:
       needles: []
     - url: "https://wiki.polkadot.network/en/latest/"
       needles: []
+    - url: "https://riot.w3f.tech/"
+      needles: []
