@@ -19,3 +19,5 @@ data:
       needles: []
     - url: "https://riot.w3f.tech/"
       needles: []
+    - url: "https://web3.foundation/.well-known/matrix/server"
+      needles: []
