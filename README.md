@@ -34,7 +34,7 @@ service resources it contains manifests for these custom resources:
 
     * `$DIGITALOCEAN_ACCESS_TOKEN`
 
-    * `GITHUB_BOT_TOKEN`
+    * `$GITHUB_BOT_TOKEN`
 
     * `$DOCKER_USER`
 
