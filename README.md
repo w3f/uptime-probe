@@ -29,21 +29,6 @@ service resources it contains manifests for these custom resources:
   * `configmap`: basic configuration of the probe, including the set of websites
   to ccheck.
 
-  In order to be able to deploy to production, these environment variables must be
-  available:
-
-    * `$DIGITALOCEAN_ACCESS_TOKEN`
-
-    * `$GITHUB_BOT_TOKEN`
-
-    * `$DOCKER_USER`
-
-    * `$DOCKER_PASSWORD`
-
-  These values are already set on CI, the GitHub bot token in an item called
-  `GitHub bot`, the Docker credentials in an item called `Docker Hub Bot`  and
-  the Digital Ocean access token in the `DigitalOcean API credentials` item.
-
 * `.circleci`: defines the CI/CD configuration.
 
 * `scripts`: contains:
@@ -60,6 +45,24 @@ service resources it contains manifests for these custom resources:
 a multi-stage DDocker build, with a first stage that generates a static binary
 from Rust source files and a second stage which puts this binary on an Alpine
 image, resulting in a very lightweight final image (~7Mb).
+
+## Environment variables
+
+In order to be able to deploy to production, these environment variables must be
+available:
+
+* `$DIGITALOCEAN_ACCESS_TOKEN`
+
+* `$GITHUB_BOT_TOKEN`
+
+* `$DOCKER_USER`
+
+* `$DOCKER_PASSWORD`
+
+These values are already set on CI, and are available on 1Password, under the
+Infrastructure vault, the GitHub bot token in an item called `GitHub bot`, the
+Docker credentials in an item called `Docker Hub Bot` and the Digital Ocean
+access token in the `DigitalOcean API credentials` item.
 
 ## CI/CD Workflow
 
