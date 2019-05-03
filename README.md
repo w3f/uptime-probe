@@ -21,7 +21,7 @@ configuration settings.
 
 These are the main directories in the repo:
 
-* `charts`: contains the matrixbot helm chart, besides the deployment and
+* `charts`: contains the uptime-probe helm chart, besides the deployment and
 service resources it contains manifests for these custom resources:
 
   * `servicemonitor`: allows to scrape metrics from uptime-probe.
@@ -61,7 +61,7 @@ a multi-stage DDocker build, with a first stage that generates a static binary
 from Rust source files and a second stage which puts this binary on an Alpine
 image, resulting in a very lightweight final image (~7Mb).
 
-## Workflow
+## CI/CD Workflow
 
 When a PR is proposed to this repo, the integration tests defined by
 `scripts/integration-tests.sh` are executed on a Kubernetes cluster created on
