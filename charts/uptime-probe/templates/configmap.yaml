@@ -7,7 +7,7 @@ data:
     period: 300
     port: {{ .Values.port }}
     sites:
-    - url: "https://polkadot.network/"
+    - url: "https://polkadot.network"
       needles: []
     - url: "https://web3.foundation/"
       needles: []
