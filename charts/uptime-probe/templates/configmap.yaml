@@ -21,3 +21,5 @@ data:
       needles: []
     - url: "https://web3.foundation/.well-known/matrix/server"
       needles: []
+    - url: "https://kusama.network"
+      needles: []
