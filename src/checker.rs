@@ -9,7 +9,6 @@ use crate::config;
 use prometheus::{IntGaugeVec};
 
 use std::error::Error;
-use std::collections::HashMap;
 
 lazy_static! {
     static ref INT_GAUGE_VECT: IntGaugeVec = register_int_gauge_vec!(
@@ -44,18 +43,12 @@ impl Checker {
                     .map(move |res| {
                         let u = &url_success[..];
                         match res.status().as_str() {
-                            "200" => {
-                                println!("SUCCESS: 200 for {}", u);
+                            "200" | "301" => {
+                                println!("SUCCESS: {} for {}", res.status(), u);
                                 for error in errors.iter() {
-                                    let mut labels = HashMap::new();
-                                    labels.insert("url", u);
-                                    labels.insert("result", &error);
-                                    INT_GAUGE_VECT.with(&labels).set(0);
+                                    INT_GAUGE_VECT.with_label_values(&[&error, u]).set(0);
                                 }
-                                let mut labels = HashMap::new();
-                                labels.insert("url", &url_success[..]);
-                                labels.insert("result", "connection error");
-                                INT_GAUGE_VECT.with(&labels).set(0);
+                                INT_GAUGE_VECT.with_label_values(&["connection error", &url_success[..]]).set(0);
                             },
                             s => {
                                 println!("FAILURE: {} for {}", s, u);
