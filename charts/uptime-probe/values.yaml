@@ -23,3 +23,5 @@ sites:
   needles: []
 - url: "https://kusama.network"
   needles: []
+- url: "https://claims.polkadot.network"
+  needles: []
