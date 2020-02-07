@@ -13,7 +13,7 @@ pub struct Server  {
 }
 
 impl Server {
-    pub fn new(port: u32) -> Result<Server, Box<Error>> {
+    pub fn new(port: u32) -> Result<Server, Box<dyn Error>> {
         let mut router = Router::new();
         router.get("/healthcheck", Self::get_healthcheck, "healthcheck");
         router.get("/metrics", Self::get_metrics, "metrics");
