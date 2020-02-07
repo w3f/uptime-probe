@@ -46,6 +46,7 @@ impl Checker {
                             "200" | "301" => {
                                 println!("SUCCESS: {} for {}", res.status(), u);
                                 for error in errors.iter() {
+                                    println!("unsetting error {}, {}", &error, u);
                                     INT_GAUGE_VECT.with_label_values(&[&error, u]).set(0);
                                 }
                                 INT_GAUGE_VECT.with_label_values(&["connection error", &url_success[..]]).set(0);
