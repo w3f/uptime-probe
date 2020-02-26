@@ -2,13 +2,13 @@ extern crate hyper;
 extern crate hyper_tls;
 
 use hyper::Client;
-use hyper::rt::{self, Future};
 use hyper_tls::HttpsConnector;
 
 use crate::config;
 use prometheus::{IntGaugeVec};
 
 use std::error::Error;
+use std::collections::HashMap;
 
 lazy_static! {
     static ref INT_GAUGE_VECT: IntGaugeVec = register_int_gauge_vec!(
@@ -19,51 +19,52 @@ lazy_static! {
 
 pub struct Checker {
     sites: Vec<config::Site>,
+    errors: HashMap<(String, String), bool>
 }
 
 impl Checker {
     pub fn new(sites: Vec<config::Site>) -> Checker {
-        Checker { sites }
+        let errors: HashMap<(String, String), bool> = HashMap::new();
+
+        Checker { sites, errors }
     }
 
-    pub fn run(&self) -> Result<(), Box<dyn Error>> {
+    pub async fn run(&mut self) -> Result<(), Box<dyn Error>> {
+        let https = HttpsConnector::new();
+        let client = Client::builder().build::<_, hyper::Body>(https);
 
         for site in &self.sites {
             println!("Processing {}", site.url);
-            let url_success = site.url.clone();
-            let url_err = site.url.clone();
             let uri = site.url.parse().unwrap();
-            let mut errors: Vec<String> = vec![];
-            rt::run(rt::lazy(|| {
-                let https = HttpsConnector::new(4).unwrap();
-                let client = Client::builder()
-                    .build::<_, hyper::Body>(https);
-                client
-                    .get(uri)
-                    .map(move |res| {
-                        let u = &url_success[..];
-                        match res.status().as_str() {
-                            "200" | "301" => {
-                                println!("SUCCESS: {} for {}", res.status(), u);
-                                for error in errors.iter() {
-                                    println!("unsetting error {}, {}", &error, u);
-                                    INT_GAUGE_VECT.with_label_values(&[&error, u]).set(0);
-                                }
-                                INT_GAUGE_VECT.with_label_values(&["connection error", &url_success[..]]).set(0);
-                            },
-                            s => {
-                                println!("FAILURE: {} for {}", s, u);
-                                errors.push(s.to_string().clone());
-                                INT_GAUGE_VECT.with_label_values(&[s, u]).set(1);
+            let res = client.get(uri).await;
+            match res {
+                Ok(r) => {
+                    let u = &site.url[..];
+                    match r.status().as_str() {
+                        "200" | "301" => {
+                            println!("SUCCESS: {} for {}", r.status(), u);
+                            let key = &(u.to_string(), r.status().as_str().to_string());
+                            if self.errors.contains_key(key) && *self.errors.get(key).unwrap() {
+                                println!("unsetting error {}, {}", r.status(), u);
+                                self.errors.remove(key);
+                                INT_GAUGE_VECT.with_label_values(&[r.status().as_str(), u]).set(0);
                             }
+                            INT_GAUGE_VECT.with_label_values(&["connection error", &site.url[..]]).set(0);
+                        },
+                        s => {
+                            println!("FAILURE: {} for {}", s, u);
+                            self.errors.insert((u.to_string(), s.to_string()), true);
+                            INT_GAUGE_VECT.with_label_values(&[s, u]).set(1);
                         }
-                    })
-                    .map_err(move |_| {
-                        let u = &url_err[..];
-                        println!("FAILURE: connection error for {}", u);
-                        INT_GAUGE_VECT.with_label_values(&["connection error", &url_err[..]]).set(1);
-                    })
-            }));
+                    }
+                },
+                Err(e) => {
+                    let u = &site.url[..];
+                    println!("FAILURE: connection error for {}: {}", u, e);
+                    self.errors.insert((u.to_string(), "connection error".to_string()), true);
+                    INT_GAUGE_VECT.with_label_values(&["connection error", &site.url[..]]).set(1);
+                }
+            }
         }
         Ok(())
     }
