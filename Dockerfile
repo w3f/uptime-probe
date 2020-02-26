@@ -1,7 +1,7 @@
-FROM ekidd/rust-musl-builder as builder
+FROM clux/muslrust:nightly as builder
 
+WORKDIR /build
 ADD . ./
-RUN sudo chown -R rust:rust .
 RUN cargo build --release --target x86_64-unknown-linux-musl
 
 FROM alpine:3.9
@@ -10,6 +10,6 @@ RUN mkdir -p /app
 
 WORKDIR /app
 
-COPY --from=builder /home/rust/src/target/x86_64-unknown-linux-musl/release/uptime-probe .
+COPY --from=builder /build/target/x86_64-unknown-linux-musl/release/uptime-probe .
 
 CMD ["/app/uptime-probe"]
