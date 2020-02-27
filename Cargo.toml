@@ -1,12 +1,12 @@
 [package]
 name = "uptime_probe"
-version = "0.1.0"
+version = "0.4.0"
 authors = ["Federico Gimenez <federico@web3.foundation>"]
 edition = "2018"
 
 [dependencies]
-hyper = "0.12"
-hyper-tls = "0.3.2"
+hyper = "0.13"
+hyper-tls = "0.4.1"
 iron = "0.6.1"
 lazy_static = "1.4.0"
 mime = "0.2.3"
@@ -17,3 +17,4 @@ serde_derive = "1.0.90"
 serde_yaml = "0.8"
 tempfile = "3"
 urlencoded = "0.5.0"
+tokio = {version="0.2.7", features=["macros", "rt-core"]}
