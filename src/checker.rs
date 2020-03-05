@@ -43,12 +43,15 @@ impl Checker {
                     match r.status().as_str() {
                         "200" | "301" => {
                             println!("SUCCESS: {} for {}", r.status(), u);
-                            let key = &(u.to_string(), r.status().as_str().to_string());
-                            if self.errors.contains_key(key) && *self.errors.get(key).unwrap() {
-                                println!("unsetting error {}, {}", r.status(), u);
-                                self.errors.remove(key);
-                                INT_GAUGE_VECT.with_label_values(&[r.status().as_str(), u]).set(0);
+                            for (k, _) in &self.errors {
+                                if k.0 == &site.url[..] {
+                                    println!("unsetting error {}, {}", k.1, u);
+                                    INT_GAUGE_VECT.with_label_values(&[k.1.as_str(), u]).set(0);
+                                }
                             }
+                            self.errors.retain(|key, _| {
+                                !(key.0 == &site.url[..])
+                            });
                             INT_GAUGE_VECT.with_label_values(&["connection error", &site.url[..]]).set(0);
                         },
                         s => {
