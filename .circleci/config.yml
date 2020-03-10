@@ -20,6 +20,14 @@ jobs:
       - run:
           command: |
             /scripts/build-image.sh web3f/uptime-probe .
+  helmLint:
+    docker:
+      - image: web3f/ci-commons:v2.0.1
+    steps:
+      - checkout
+      - run:
+          command: |
+            helm lint ./charts/uptime-probe
 
   integrationTests:
     docker:
@@ -74,10 +82,18 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - helmLint:
+          filters:
+            tags:
+              only: /.*/
       - integrationTests:
           filters:
             tags:
               only: /.*/
+          requires:
+            - cargoTests
+            - buildImage
+            - helmLint              
       - publishImage:
           filters:
             branches:
