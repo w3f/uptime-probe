@@ -11,7 +11,7 @@ run_tests() {
 }
 
 teardown() {
-    helm delete --purge uptime-probe
+    helm delete uptime-probe
 }
 
 main(){
