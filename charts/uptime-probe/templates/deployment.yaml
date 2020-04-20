@@ -36,12 +36,12 @@ spec:
           initialDelaySeconds: 30
           timeoutSeconds: 30
         resources:
-          limits:
-            cpu: 10m
-            memory: 100Mi
           requests:
-            cpu: 10m
-            memory: 100Mi
+            cpu: 100m
+            memory: 300Mi
+          limits:
+            cpu: 200m
+            memory: 400Mi
         volumeMounts:
         - name: config
           mountPath: /etc/uptime-probe
