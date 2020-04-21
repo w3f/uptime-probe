@@ -15,7 +15,7 @@ spec:
         description: Uptime probe for {{ `{{ $labels.url }}` }} started failing with {{ `{{ $labels.result }}` }}.
       expr: |
         uptime_probe_errors > 0
-      for: 3m
+      for: 5m
       labels:
         severity: warning
     - alert: UptimeProbeFailure
