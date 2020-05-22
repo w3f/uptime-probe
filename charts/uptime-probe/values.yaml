@@ -51,7 +51,7 @@ sites:
   needles: []
 - url: "https://remarkable.w3f.tech"
   needles: []
-- url: "https://statement.polkadot.network/saft.md"
+- url: "https://statement.polkadot.network/saft.html"
   needles: []
-- url: "https://statement.polkadot.network/regular.md"
+- url: "https://statement.polkadot.network/regular.html"
   needles: []
