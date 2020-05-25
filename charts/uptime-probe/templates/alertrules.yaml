@@ -18,6 +18,7 @@ spec:
       for: 5m
       labels:
         severity: warning
+        origin: w3f
     - alert: UptimeProbeFailure
       annotations:
         summary: Uptime probe failure.
@@ -27,4 +28,5 @@ spec:
       for: 6m
       labels:
         severity: critical
+        origin: w3f        
 {{ end }}
