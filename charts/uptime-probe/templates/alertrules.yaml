@@ -28,5 +28,5 @@ spec:
       for: 6m
       labels:
         severity: critical
-        origin: w3f
+        origin: {{ .Values.origin }}
 {{ end }}
