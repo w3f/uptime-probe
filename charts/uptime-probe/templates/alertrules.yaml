@@ -18,6 +18,7 @@ spec:
       for: 5m
       labels:
         severity: warning
+        origin: {{ .Values.origin }}
     - alert: UptimeProbeFailure
       annotations:
         summary: Uptime probe failure.
@@ -26,5 +27,6 @@ spec:
         uptime_probe_errors > 0
       for: 6m
       labels:
-        severity: critical 
+        severity: critical
+        origin: {{ .Values.origin }}
 {{ end }}

@@ -21,6 +21,7 @@ main(){
 
     /scripts/build-helm.sh \
         --set environment=ci \
+        --set origin=test \
         --set image.tag="${CIRCLE_SHA1}" \
         uptime-probe \
         ./charts/uptime-probe
