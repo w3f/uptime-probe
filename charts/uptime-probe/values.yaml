@@ -1,5 +1,5 @@
 environment: production
-
+origin: 
 port: 8080
 
 image:
