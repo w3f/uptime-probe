@@ -18,7 +18,7 @@ spec:
       for: 5m
       labels:
         severity: warning
-        origin: w3f
+        origin: {{ .Values.origin }}
     - alert: UptimeProbeFailure
       annotations:
         summary: Uptime probe failure.
