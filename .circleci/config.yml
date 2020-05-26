@@ -67,6 +67,8 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
+          environment:
+            ORIGIN: w3f
           command: |
             ./scripts/deploy.sh
 
@@ -93,7 +95,7 @@ workflows:
           requires:
             - cargoTests
             - buildImage
-            - helmLint              
+            - helmLint
       - publishImage:
           filters:
             branches:
