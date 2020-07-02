@@ -55,7 +55,3 @@ sites:
   needles: []
 - url: "https://statement.polkadot.network/regular.html"
   needles: []
-- url: "https://polkadot-api.w3f.community/vesting/Di9whaYj3nvDZr3hjsDGwgrEowz16HvSfKaiHRprRGvZa8x"
-  needles: []
-- url: "https://kusama-api.w3f.community/balance/DTLcUu92NoQw4gg6VmNgXeYQiNywDhfYMQBPYg2Y1W6AkJF"
-  needles: []
