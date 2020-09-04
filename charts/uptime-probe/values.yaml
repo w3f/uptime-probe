@@ -49,8 +49,6 @@ sites:
   needles: []
 - url: "https://wiki.polkadot.network/docs/en/kusama-coc"
   needles: []
-- url: "https://remarkable.w3f.tech"
-  needles: []
 - url: "https://statement.polkadot.network/saft.html"
   needles: []
 - url: "https://statement.polkadot.network/regular.html"
