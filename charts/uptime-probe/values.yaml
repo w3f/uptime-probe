@@ -25,29 +25,11 @@ sites:
   needles: []
 - url: "https://claims.polkadot.network"
   needles: []
-- url: "https://wiki.polkadot.network/docs/en/kusama-index"
-  needles: []
-- url: "https://wiki.polkadot.network/docs/en/kusama-claims"
-  needles: []
-- url: "https://wiki.polkadot.network/docs/en/kusama-timeline"
-  needles: []
-- url: "https://wiki.polkadot.network/docs/en/kusama-faucet"
-  needles: []
 - url: "https://wiki.polkadot.network/docs/en/learn-identity"
   needles: []
 - url: "https://wiki.polkadot.network/docs/en/learn-governance"
   needles: []
-- url: "https://wiki.polkadot.network/docs/en/maintain-guides-how-to-validate-kusama"
-  needles: []
 - url: "https://wiki.polkadot.network/docs/en/build-build-with-polkadot"
-  needles: []
-- url: "https://wiki.polkadot.network/docs/en/kusama-bug-bounty"
-  needles: []
-- url: "https://wiki.polkadot.network/docs/en/kusama-adverserial-cheatsheet"
-  needles: []
-- url: "https://wiki.polkadot.network/docs/en/kusama-community"
-  needles: []
-- url: "https://wiki.polkadot.network/docs/en/kusama-coc"
   needles: []
 - url: "https://statement.polkadot.network/saft.html"
   needles: []
