@@ -39,3 +39,5 @@ sites:
   needles: []
 - url: "https://telemetry.cc3-0.kusama.network"
   needles: []
+- url: "https://polkadot.js.org/apps"
+  needles: []
