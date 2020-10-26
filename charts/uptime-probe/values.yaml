@@ -41,3 +41,5 @@ sites:
   needles: []
 - url: "https://polkadot.js.org/apps"
   needles: []
+- url: "wss://rpc.polkadot.io"
+  needles: []
