@@ -35,3 +35,7 @@ sites:
   needles: []
 - url: "https://statement.polkadot.network/regular.html"
   needles: []
+- url: "https://telemetry.cc1-0.polkadot.network"
+  needles: []
+- url: "https://telemetry.cc3-0.kusama.network"
+  needles: []
