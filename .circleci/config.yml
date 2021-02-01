@@ -13,16 +13,18 @@ jobs:
 
   buildImage:
     docker:
-      - image: web3f/ci-commons:v2.0.1
+      - image: web3f/ci-commons:v2.4.4
+    resource_class: xlarge   
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           command: |
             /scripts/build-image.sh web3f/uptime-probe .
   helmLint:
     docker:
-      - image: web3f/ci-commons:v2.0.1
+      - image: web3f/ci-commons:v2.4.4
     steps:
       - checkout
       - run:
@@ -31,7 +33,7 @@ jobs:
 
   integrationTests:
     docker:
-      - image: web3f/ci-commons:v2.0.1
+      - image: web3f/ci-commons:v2.4.4
     steps:
       - checkout
       - setup_remote_docker:
@@ -43,7 +45,7 @@ jobs:
 
   publishImage:
     docker:
-      - image: web3f/ci-commons:v2.0.1
+      - image: web3f/ci-commons:v2.4.4
     steps:
       - checkout
       - setup_remote_docker
@@ -53,7 +55,7 @@ jobs:
 
   publishChart:
     docker:
-      - image: web3f/ci-commons:v2.0.1
+      - image: web3f/ci-commons:v2.4.4
     steps:
       - checkout
       - run:
@@ -62,7 +64,7 @@ jobs:
 
   deploy:
     docker:
-      - image: web3f/ci-commons:v2.0.1
+      - image: web3f/ci-commons:v2.4.4
     steps:
       - checkout
       - setup_remote_docker
@@ -81,6 +83,7 @@ workflows:
             tags:
               only: /.*/
       - buildImage:
+          context: dockerhub-bot
           filters:
             tags:
               only: /.*/
@@ -97,21 +100,23 @@ workflows:
             - buildImage
             - helmLint
       - publishImage:
+          context: dockerhub-bot
           filters:
             branches:
               ignore: /.*/
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
           requires:
             - cargoTests
             - buildImage
             - integrationTests
       - publishChart:
+          context: github-bot
           filters:
             branches:
               ignore: /.*/
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
           requires:
             - cargoTests
             - buildImage
@@ -121,7 +126,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
           requires:
             - publishChart
             - publishImage
