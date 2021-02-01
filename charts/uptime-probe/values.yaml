@@ -13,8 +13,6 @@ sites:
   needles: []
 - url: "https://research.web3.foundation/en/latest/"
   needles: []
-- url: "https://wiki.web3.foundation/en/latest/"
-  needles: []
 - url: "https://wiki.polkadot.network"
   needles: []
 - url: "https://riot.w3f.tech/"
