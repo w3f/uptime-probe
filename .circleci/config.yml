@@ -81,6 +81,7 @@ workflows:
             tags:
               only: /.*/
       - buildImage:
+          context: dockerhub-bot
           filters:
             tags:
               only: /.*/
@@ -97,6 +98,7 @@ workflows:
             - buildImage
             - helmLint
       - publishImage:
+          context: dockerhub-bot
           filters:
             branches:
               ignore: /.*/
@@ -107,6 +109,7 @@ workflows:
             - buildImage
             - integrationTests
       - publishChart:
+          context: github-bot
           filters:
             branches:
               ignore: /.*/
