@@ -4,32 +4,8 @@ port: 8080
 
 image:
   repo: web3f/uptime-probe
-  tag: latest
+  tag: v0.4.13
 
 sites:
-- url: "https://polkadot.network"
-  needles: []
-- url: "https://web3.foundation/"
-  needles: []
-- url: "https://research.web3.foundation/en/latest/"
-  needles: []
-- url: "https://wiki.polkadot.network"
-  needles: []
-- url: "https://riot.w3f.tech/"
-  needles: []
-- url: "https://web3.foundation/.well-known/matrix/server"
-  needles: []
-- url: "https://kusama.network"
-  needles: []
-- url: "https://claims.polkadot.network"
-  needles: []
-- url: "https://wiki.polkadot.network/docs/en/learn-identity"
-  needles: []
-- url: "https://wiki.polkadot.network/docs/en/learn-governance"
-  needles: []
-- url: "https://wiki.polkadot.network/docs/en/build-build-with-polkadot"
-  needles: []
-- url: "https://statement.polkadot.network/saft.html"
-  needles: []
-- url: "https://statement.polkadot.network/regular.html"
+- url: "https://your.url"
   needles: []
