@@ -25,7 +25,7 @@ spec:
         description: Uptime probe for {{ `{{ $labels.url }}` }} started failing with {{ `{{ $labels.result }}` }}.
       expr: |
         uptime_probe_errors > 0
-      for: 6m
+      for: 15m
       labels:
         severity: critical
         origin: {{ .Values.origin }}
