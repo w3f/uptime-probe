@@ -47,7 +47,10 @@ impl Checker {
 
         INT_GAUGE_VECT.with_label_values(&["connection error", url, prom_scope]).set(0);
     }
-
+    fn handle_failure(&mut self, code: &str, url: &str) {
+        self.errors.insert((url.to_string(), code.to_string()), true);
+        INT_GAUGE_VECT.with_label_values(&[code, url, self.prometheus_rule_scope.as_str()]).set(1);
+    }
     pub async fn run(&mut self) -> Result<(), Box<dyn Error>> {
         let https = HttpsConnector::new();
         let client = Client::builder().build::<_, hyper::Body>(https);   
@@ -75,8 +78,7 @@ impl Checker {
                             },
                             code => {
                                 println!("FAILURE: {} for {}", code, url);
-                                self.errors.insert((url.to_string(), code.to_string()), true);
-                                INT_GAUGE_VECT.with_label_values(&[code, url, self.prometheus_rule_scope.as_str()]).set(1);
+                                self.handle_failure(code, url);
                             }
                         }
 
@@ -85,8 +87,7 @@ impl Checker {
                 },
                 Err(e) => {
                     println!("FAILURE: connection error for {}: {}", url, e);
-                    self.errors.insert((url.to_string(), "connection error".to_string()), true);
-                    INT_GAUGE_VECT.with_label_values(&["connection error", &site.url[..], self.prometheus_rule_scope.as_str()]).set(1);
+                    self.handle_failure("connection error", url);
                 }
             }
         }
