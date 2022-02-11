@@ -1,10 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: uptime-probe
+  name: {{ .Release.Name }}
 data:
-  configuration.yaml: |
-    period: 300
-    port: {{ .Values.port }}
-    sites:
-{{ toYaml .Values.sites | indent 4 }}
+  configuration.yaml: |-
+{{ toYaml .Values.config | indent 4 }}

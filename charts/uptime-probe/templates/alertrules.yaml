@@ -4,29 +4,31 @@ kind: PrometheusRule
 metadata:
   labels:
     app: w3f
-  name: uptime-probe
+  name: {{ .Release.Name }}
 spec:
   groups:
-  - name: uptime-probe
+  - name: {{ .Release.Name }}.rules
     rules:
     - alert: UptimeProbeWarning
       annotations:
         summary: Uptime probe failure.
         description: Uptime probe for {{ `{{ $labels.url }}` }} started failing with {{ `{{ $labels.result }}` }}.
       expr: |
-        uptime_probe_errors > 0
+        uptime_probe_errors{scope="{{ .Values.config.prometheus_rule_scope }}"} > 0
       for: 5m
       labels:
         severity: warning
         origin: {{ .Values.origin }}
+    {{ if .Values.prometheusRules.criticalEnabled }}    
     - alert: UptimeProbeFailure
       annotations:
         summary: Uptime probe failure.
         description: Uptime probe for {{ `{{ $labels.url }}` }} started failing with {{ `{{ $labels.result }}` }}.
       expr: |
-        uptime_probe_errors > 0
+        uptime_probe_errors{scope="{{ .Values.config.prometheus_rule_scope }}"} > 0
       for: 15m
       labels:
         severity: critical
         origin: {{ .Values.origin }}
+    {{ end }}    
 {{ end }}

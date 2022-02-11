@@ -20,7 +20,7 @@ mod server;
 pub async fn run(cfg: config::Config) -> Result<(), Box<dyn Error>> {
     let port = cfg.port;
     let handle = thread::spawn(async move || {
-        let mut checker = checker::Checker::new(cfg.sites);
+        let mut checker = checker::Checker::new(cfg.sites,cfg.allow_redirections,cfg.prometheus_rule_scope);
 
         let period_duration = time::Duration::from_secs(cfg.period as u64);
         loop {

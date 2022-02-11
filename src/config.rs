@@ -5,13 +5,14 @@ use std::path::Path;
 #[derive(Debug, Deserialize)]
 pub struct Site {
     pub url: String,
-    pub needles: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
     pub period: u32,
     pub port: u32,
+    pub allow_redirections: bool,
+    pub prometheus_rule_scope: String,
     pub sites: Vec<Site>,
 }
 
@@ -89,11 +90,11 @@ mod tests{
         write!(tmpfile, r#"
 period: 300
 port: 8080
+allow_redirections: false
+prometheus_rule_scope: std
 sites:
 - url: "https://polkadot.network/"
-  needles: ["multi-chain", "interoperability", "scalability"]
 - url: "https://web3.foundation/"
-  needles: ["decentralized", "protocols", "projects"]
 "#).unwrap();
 
         let path = tmpfile.path();
@@ -107,15 +108,7 @@ sites:
             assert_eq!(cfg.port, 8080);
             assert_eq!(cfg.sites.len(), 2);
             assert_eq!(cfg.sites[0].url, "https://polkadot.network/");
-            assert_eq!(cfg.sites[0].needles.len(), 3);
-            assert_eq!(cfg.sites[0].needles[0], "multi-chain");
-            assert_eq!(cfg.sites[0].needles[1], "interoperability");
-            assert_eq!(cfg.sites[0].needles[2], "scalability");
             assert_eq!(cfg.sites[1].url, "https://web3.foundation/");
-            assert_eq!(cfg.sites[1].needles.len(), 3);
-            assert_eq!(cfg.sites[1].needles[0], "decentralized");
-            assert_eq!(cfg.sites[1].needles[1], "protocols");
-            assert_eq!(cfg.sites[1].needles[2], "projects");
         }
     }
 }

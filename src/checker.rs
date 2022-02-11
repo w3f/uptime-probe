@@ -14,24 +14,26 @@ lazy_static! {
     static ref INT_GAUGE_VECT: IntGaugeVec = register_int_gauge_vec!(
         "uptime_probe_errors",
         "uptime probe requests errors",
-        &["result", "url"]).unwrap();
+        &["result", "url", "scope"]).unwrap();
 }
 
 pub struct Checker {
     sites: Vec<config::Site>,
+    allow_redirections: bool,
+    prometheus_rule_scope: String,
     errors: HashMap<(String, String), bool>
 }
 
 impl Checker {
-    pub fn new(sites: Vec<config::Site>) -> Checker {
+    pub fn new(sites: Vec<config::Site>, allow_redirections: bool, prometheus_rule_scope: String) -> Checker {
         let errors: HashMap<(String, String), bool> = HashMap::new();
 
-        Checker { sites, errors }
+        Checker { sites, allow_redirections, prometheus_rule_scope, errors }
     }
 
     pub async fn run(&mut self) -> Result<(), Box<dyn Error>> {
         let https = HttpsConnector::new();
-        let client = Client::builder().build::<_, hyper::Body>(https);
+        let client = Client::builder().build::<_, hyper::Body>(https);   
 
         for site in &self.sites {
             println!("Processing {}", site.url);
@@ -40,32 +42,51 @@ impl Checker {
             match res {
                 Ok(r) => {
                     let u = &site.url[..];
-                    match r.status().as_str() {
-                        "200" | "301" => {
+
+                    if self.allow_redirections && r.status().is_redirection() {
                             println!("SUCCESS: {} for {}", r.status(), u);
                             for (k, _) in &self.errors {
                                 if k.0 == &site.url[..] {
                                     println!("unsetting error {}, {}", k.1, u);
-                                    INT_GAUGE_VECT.with_label_values(&[k.1.as_str(), u]).set(0);
+                                    INT_GAUGE_VECT.with_label_values(&[k.1.as_str(), u, self.prometheus_rule_scope.as_str()]).set(0);
                                 }
                             }
                             self.errors.retain(|key, _| {
                                 !(key.0 == &site.url[..])
                             });
-                            INT_GAUGE_VECT.with_label_values(&["connection error", &site.url[..]]).set(0);
-                        },
-                        s => {
-                            println!("FAILURE: {} for {}", s, u);
-                            self.errors.insert((u.to_string(), s.to_string()), true);
-                            INT_GAUGE_VECT.with_label_values(&[s, u]).set(1);
-                        }
+                            INT_GAUGE_VECT.with_label_values(&["connection error", &site.url[..], self.prometheus_rule_scope.as_str()]).set(0);
                     }
+                    else{
+
+                        match r.status().as_str() {
+                            "200" | "301" | "308" => {
+                                println!("SUCCESS: {} for {}", r.status(), u);
+                                for (k, _) in &self.errors {
+                                    if k.0 == &site.url[..] {
+                                        println!("unsetting error {}, {}", k.1, u);
+                                        INT_GAUGE_VECT.with_label_values(&[k.1.as_str(), u, self.prometheus_rule_scope.as_str()]).set(0);
+                                    }
+                                }
+                                self.errors.retain(|key, _| {
+                                    !(key.0 == &site.url[..])
+                                });
+                                INT_GAUGE_VECT.with_label_values(&["connection error", &site.url[..], self.prometheus_rule_scope.as_str()]).set(0);
+                            },
+                            s => {
+                                println!("FAILURE: {} for {}", s, u);
+                                self.errors.insert((u.to_string(), s.to_string()), true);
+                                INT_GAUGE_VECT.with_label_values(&[s, u, self.prometheus_rule_scope.as_str()]).set(1);
+                            }
+                        }
+
+                    }
+
                 },
                 Err(e) => {
                     let u = &site.url[..];
                     println!("FAILURE: connection error for {}: {}", u, e);
                     self.errors.insert((u.to_string(), "connection error".to_string()), true);
-                    INT_GAUGE_VECT.with_label_values(&["connection error", &site.url[..]]).set(1);
+                    INT_GAUGE_VECT.with_label_values(&["connection error", &site.url[..], self.prometheus_rule_scope.as_str()]).set(1);
                 }
             }
         }

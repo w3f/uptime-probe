@@ -2,13 +2,13 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: uptime-probe
+  name: {{ .Release.Name }}
   labels:
     group: w3f
 spec:
   selector:
     matchLabels:
-      app: uptime-probe
+      app: {{ .Release.Name }}
   endpoints:
   - port: http
 {{ end }}

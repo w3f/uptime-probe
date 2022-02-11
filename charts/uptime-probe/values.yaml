@@ -1,11 +1,25 @@
 environment: production
 origin:
-port: 8080
 
 image:
   repo: web3f/uptime-probe
   tag: v0.5.0
 
-sites:
-- url: "https://your.url"
-  needles: []
+config:
+  port: 8080
+  period: 300
+  allow_redirections: false
+  prometheus_rule_scope: "standard"
+  sites:
+  - url: "https://your.url"
+
+prometheusRules:
+  criticalEnabled: false
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "200Mi"
+  limits:
+    cpu: "300m"
+    memory: "600Mi"

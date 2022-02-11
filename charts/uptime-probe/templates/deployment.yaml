@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uptime-probe
+  name: {{ .Release.Name }}
   labels:
-    app: uptime-probe
+    app: {{ .Release.Name }}
 spec:
   replicas: 1
   revisionHistoryLimit: 3
@@ -11,41 +11,38 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
-      app: uptime-probe
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: uptime-probe
+        app: {{ .Release.Name }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       containers:
-      - name: uptime-probe
-        image: {{ .Values.image.repo }}:{{ .Values.image.tag }}
+      - name: {{ .Release.Name }}
+        image: {{ .Values.image.repo }}:{{ .Values.image.tag | default .Chart.AppVersion }}
         imagePullPolicy: IfNotPresent
         args:
         - /app/uptime-probe
         - /etc/uptime-probe/configuration.yaml
         ports:
         - name: http
-          containerPort: {{ .Values.port }}
+          containerPort: {{ .Values.config.port }}
         readinessProbe:
           httpGet:
             path: /healthcheck
-            port: {{ .Values.port }}
+            port: {{ .Values.config.port }}
           initialDelaySeconds: 30
           timeoutSeconds: 30
+        {{ if ne .Values.environment "ci" }}
         resources:
-          requests:
-            cpu: 100m
-            memory: 300Mi
-          limits:
-            cpu: 200m
-            memory: 400Mi
+          {{- toYaml .Values.resources | nindent 10 }}
+        {{ end }}
         volumeMounts:
         - name: config
           mountPath: /etc/uptime-probe
       volumes:
       - name: config
         configMap:
-          name: uptime-probe
+          name: {{ .Release.Name }}
