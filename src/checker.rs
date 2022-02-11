@@ -1,7 +1,7 @@
 extern crate hyper;
 extern crate hyper_tls;
 
-use hyper::Client;
+use hyper::{Client, Response, Body};
 use hyper_tls::HttpsConnector;
 
 use crate::config;
@@ -30,52 +30,55 @@ impl Checker {
 
         Checker { sites, allow_redirections, prometheus_rule_scope, errors }
     }
+    fn handle_success(&mut self, resp: &Response<Body>, url: &str) {
+        println!("SUCCESS: {} for {}", resp.status(), url);
+        let prom_scope = self.prometheus_rule_scope.as_str();
 
+        for ((key, code), _) in &self.errors {
+            if key == url {
+                println!("unsetting error {}, {}", code, url);
+                INT_GAUGE_VECT.with_label_values(&[code.as_str(), url, prom_scope]).set(0);
+            }
+        }
+
+        self.errors.retain(|(key, _), _| {
+            key != url
+        });
+
+        INT_GAUGE_VECT.with_label_values(&["connection error", url, prom_scope]).set(0);
+    }
+    fn handle_failure(&mut self, label: &str, url: &str) {
+        self.errors.insert((url.to_string(), label.to_string()), true);
+        INT_GAUGE_VECT.with_label_values(&[label, url, self.prometheus_rule_scope.as_str()]).set(1);
+    }
     pub async fn run(&mut self) -> Result<(), Box<dyn Error>> {
         let https = HttpsConnector::new();
         let client = Client::builder().build::<_, hyper::Body>(https);   
 
-        for site in &self.sites {
-            println!("Processing {}", site.url);
-            let uri = site.url.parse().unwrap();
-            let res = client.get(uri).await;
-            match res {
-                Ok(r) => {
-                    let u = &site.url[..];
+        // Get arounds Rust's borrowing rules. MAKE SURE to add `sites` back to
+        // `self.sites` before the method returns.
+        let sites = std::mem::take(&mut self.sites);
 
-                    if self.allow_redirections && r.status().is_redirection() {
-                            println!("SUCCESS: {} for {}", r.status(), u);
-                            for (k, _) in &self.errors {
-                                if k.0 == &site.url[..] {
-                                    println!("unsetting error {}, {}", k.1, u);
-                                    INT_GAUGE_VECT.with_label_values(&[k.1.as_str(), u, self.prometheus_rule_scope.as_str()]).set(0);
-                                }
-                            }
-                            self.errors.retain(|key, _| {
-                                !(key.0 == &site.url[..])
-                            });
-                            INT_GAUGE_VECT.with_label_values(&["connection error", &site.url[..], self.prometheus_rule_scope.as_str()]).set(0);
+        for site in &sites {
+            let url = site.url.as_str();
+            println!("Processing {}", url);
+
+            let uri = url.parse().unwrap();
+            let res = client.get(uri).await;
+
+            match res {
+                Ok(resp) => {
+                    if self.allow_redirections && resp.status().is_redirection() {
+                            self.handle_success(&resp, url);
                     }
                     else{
-
-                        match r.status().as_str() {
+                        match resp.status().as_str() {
                             "200" | "301" | "308" => {
-                                println!("SUCCESS: {} for {}", r.status(), u);
-                                for (k, _) in &self.errors {
-                                    if k.0 == &site.url[..] {
-                                        println!("unsetting error {}, {}", k.1, u);
-                                        INT_GAUGE_VECT.with_label_values(&[k.1.as_str(), u, self.prometheus_rule_scope.as_str()]).set(0);
-                                    }
-                                }
-                                self.errors.retain(|key, _| {
-                                    !(key.0 == &site.url[..])
-                                });
-                                INT_GAUGE_VECT.with_label_values(&["connection error", &site.url[..], self.prometheus_rule_scope.as_str()]).set(0);
+                                self.handle_success(&resp, url);
                             },
-                            s => {
-                                println!("FAILURE: {} for {}", s, u);
-                                self.errors.insert((u.to_string(), s.to_string()), true);
-                                INT_GAUGE_VECT.with_label_values(&[s, u, self.prometheus_rule_scope.as_str()]).set(1);
+                            code => {
+                                println!("FAILURE: {} for {}", code, url);
+                                self.handle_failure(code, url);
                             }
                         }
 
@@ -83,13 +86,15 @@ impl Checker {
 
                 },
                 Err(e) => {
-                    let u = &site.url[..];
-                    println!("FAILURE: connection error for {}: {}", u, e);
-                    self.errors.insert((u.to_string(), "connection error".to_string()), true);
-                    INT_GAUGE_VECT.with_label_values(&["connection error", &site.url[..], self.prometheus_rule_scope.as_str()]).set(1);
+                    println!("FAILURE: connection error for {}: {}", url, e);
+                    self.handle_failure("connection error", url);
                 }
             }
         }
+
+        // Add sites back to inner field.
+        self.sites = sites;
+
         Ok(())
     }
 }
