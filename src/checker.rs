@@ -1,7 +1,7 @@
 extern crate hyper;
 extern crate hyper_tls;
 
-use hyper::Client;
+use hyper::{Client, Response, Body};
 use hyper_tls::HttpsConnector;
 
 use crate::config;
@@ -29,6 +29,19 @@ impl Checker {
         let errors: HashMap<(String, String), bool> = HashMap::new();
 
         Checker { sites, allow_redirections, prometheus_rule_scope, errors }
+    }
+    fn handle_success(&mut self, resp: &Response<Body>, url: &str) {
+        println!("SUCCESS: {} for {}", resp.status(), url);
+        for (k, _) in &self.errors {
+            if k.0 == url {
+                println!("unsetting error {}, {}", k.1, url);
+                INT_GAUGE_VECT.with_label_values(&[k.1.as_str(), url, self.prometheus_rule_scope.as_str()]).set(0);
+            }
+        }
+        self.errors.retain(|key, _| {
+            key.0 != url
+        });
+        INT_GAUGE_VECT.with_label_values(&["connection error", url, self.prometheus_rule_scope.as_str()]).set(0);
     }
 
     pub async fn run(&mut self) -> Result<(), Box<dyn Error>> {
