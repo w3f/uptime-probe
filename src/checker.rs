@@ -47,9 +47,9 @@ impl Checker {
 
         INT_GAUGE_VECT.with_label_values(&["connection error", url, prom_scope]).set(0);
     }
-    fn handle_failure(&mut self, code: &str, url: &str) {
-        self.errors.insert((url.to_string(), code.to_string()), true);
-        INT_GAUGE_VECT.with_label_values(&[code, url, self.prometheus_rule_scope.as_str()]).set(1);
+    fn handle_failure(&mut self, label: &str, url: &str) {
+        self.errors.insert((url.to_string(), label.to_string()), true);
+        INT_GAUGE_VECT.with_label_values(&[label, url, self.prometheus_rule_scope.as_str()]).set(1);
     }
     pub async fn run(&mut self) -> Result<(), Box<dyn Error>> {
         let https = HttpsConnector::new();
