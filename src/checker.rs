@@ -30,22 +30,33 @@ impl Checker {
 
         Checker { sites, allow_redirections, prometheus_rule_scope, errors }
     }
-    fn handle_success(&self, resp: &Response<Body>, url: &str) {
+    fn handle_success(&mut self, resp: &Response<Body>, url: &str) {
         println!("SUCCESS: {} for {}", resp.status(), url);
+        let prom_scope = self.prometheus_rule_scope.as_str();
+
         for ((key, code), _) in &self.errors {
             if key == url {
                 println!("unsetting error {}, {}", code, url);
-                INT_GAUGE_VECT.with_label_values(&[code.as_str(), url, self.prometheus_rule_scope.as_str()]).set(0);
+                INT_GAUGE_VECT.with_label_values(&[code.as_str(), url, prom_scope]).set(0);
             }
         }
-        INT_GAUGE_VECT.with_label_values(&["connection error", url, self.prometheus_rule_scope.as_str()]).set(0);
+
+        self.errors.retain(|(key, _), _| {
+            key != url
+        });
+
+        INT_GAUGE_VECT.with_label_values(&["connection error", url, prom_scope]).set(0);
     }
 
     pub async fn run(&mut self) -> Result<(), Box<dyn Error>> {
         let https = HttpsConnector::new();
         let client = Client::builder().build::<_, hyper::Body>(https);   
 
-        for site in &self.sites {
+        // Get arounds Rust's borrowing rules. MAKE SURE to add `sites` back to
+        // `self.sites` before the method returns.
+        let sites = std::mem::take(&mut self.sites);
+
+        for site in &sites {
             let url = site.url.as_str();
             println!("Processing {}", url);
 
@@ -56,17 +67,11 @@ impl Checker {
                 Ok(resp) => {
                     if self.allow_redirections && resp.status().is_redirection() {
                             self.handle_success(&resp, url);
-                            self.errors.retain(|(key, _), _| {
-                                key != url
-                            });
                     }
                     else{
                         match resp.status().as_str() {
                             "200" | "301" | "308" => {
                                 self.handle_success(&resp, url);
-                                self.errors.retain(|(key, _), _| {
-                                    key != url
-                                });
                             },
                             code => {
                                 println!("FAILURE: {} for {}", code, url);
@@ -85,6 +90,10 @@ impl Checker {
                 }
             }
         }
+
+        // Add sites back to inner field.
+        self.sites = sites;
+
         Ok(())
     }
 }
