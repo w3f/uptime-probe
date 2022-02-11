@@ -3,4 +3,4 @@ port: 8080
 allow_redirections: false
 prometheus_rule_scope: std
 sites:
-  - url: "https://grafana.ironoa.com"
+  - url: "http://localhost:3000"
