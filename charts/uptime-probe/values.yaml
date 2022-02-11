@@ -3,7 +3,7 @@ origin:
 
 image:
   repo: web3f/uptime-probe
-  tag: v0.5.0
+  # tag: latest
 
 config:
   port: 8080
