@@ -1,5 +1,6 @@
 period: 3
 port: 8080
+allow_redirections: false
+prometheus_rule_scope: std
 sites:
   - url: "http://localhost:3000"
-    needles: []

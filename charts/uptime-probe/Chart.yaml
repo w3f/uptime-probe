@@ -1,4 +1,5 @@
 description: Probe to check uptime of external web sites.
 name: uptime-probe
-version: v0.5.0
+version: v0.6.0
+appVersion: v0.6.0
 apiVersion: v2
