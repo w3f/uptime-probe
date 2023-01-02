@@ -88,3 +88,4 @@ for Cargo tests and:
 $ circleci local execute --job integrationTests
 ```
 for e2e integration tests (involving k8s component deployment).
+test
