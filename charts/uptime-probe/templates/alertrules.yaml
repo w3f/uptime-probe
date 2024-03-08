@@ -14,8 +14,8 @@ spec:
         summary: Uptime probe failure.
         description: Uptime probe for {{ `{{ $labels.url }}` }} started failing with {{ `{{ $labels.result }}` }}.
       expr: |
-        uptime_probe_errors{scope="{{ .Values.config.prometheus_rule_scope }}"} > 0
-      for: 5m
+        max without(instance,pod) (last_over_time(uptime_probe_errors{scope="{{ .Values.config.prometheus_rule_scope }}"}[15m])) > 0
+      for: 15m
       labels:
         severity: warning
         origin: {{ .Values.origin }}
@@ -25,8 +25,8 @@ spec:
         summary: Uptime probe failure.
         description: Uptime probe for {{ `{{ $labels.url }}` }} started failing with {{ `{{ $labels.result }}` }}.
       expr: |
-        uptime_probe_errors{scope="{{ .Values.config.prometheus_rule_scope }}"} > 0
-      for: 15m
+        max without(instance,pod) (last_over_time(uptime_probe_errors{scope="{{ .Values.config.prometheus_rule_scope }}"}[30m])) > 0
+      for: 30m
       labels:
         severity: critical
         origin: {{ .Values.origin }}
